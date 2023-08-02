@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/cedrix/LSTM/mlruns/0/a9ac9bef14b541379d8e052d295b99da/artifacts
+end_time: 1690812311299
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: a9ac9bef14b541379d8e052d295b99da
+run_name: powerful-jay-274
+run_uuid: a9ac9bef14b541379d8e052d295b99da
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1690812295677
+status: 3
+tags: []
+user_id: cedrix

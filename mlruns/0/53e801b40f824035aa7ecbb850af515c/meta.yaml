@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/cedrix/LSTM/mlruns/0/53e801b40f824035aa7ecbb850af515c/artifacts
+end_time: 1690810378162
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 53e801b40f824035aa7ecbb850af515c
+run_name: invincible-roo-24
+run_uuid: 53e801b40f824035aa7ecbb850af515c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1690810362458
+status: 3
+tags: []
+user_id: cedrix

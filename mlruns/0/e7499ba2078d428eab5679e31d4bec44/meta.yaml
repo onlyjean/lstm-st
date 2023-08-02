@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/cedrix/LSTM/mlruns/0/e7499ba2078d428eab5679e31d4bec44/artifacts
+end_time: 1690812652252
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: e7499ba2078d428eab5679e31d4bec44
+run_name: bouncy-finch-278
+run_uuid: e7499ba2078d428eab5679e31d4bec44
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1690812648990
+status: 3
+tags: []
+user_id: cedrix

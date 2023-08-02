@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/cedrix/LSTM/mlruns/0/f9c1a33a872b49148801b0617ad1f482/artifacts
+end_time: 1690812639713
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f9c1a33a872b49148801b0617ad1f482
+run_name: clumsy-mole-178
+run_uuid: f9c1a33a872b49148801b0617ad1f482
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1690812638533
+status: 3
+tags: []
+user_id: cedrix

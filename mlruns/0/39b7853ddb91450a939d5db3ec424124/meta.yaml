@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/cedrix/LSTM/mlruns/0/39b7853ddb91450a939d5db3ec424124/artifacts
+end_time: 1690812648380
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 39b7853ddb91450a939d5db3ec424124
+run_name: redolent-wasp-688
+run_uuid: 39b7853ddb91450a939d5db3ec424124
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1690812640434
+status: 3
+tags: []
+user_id: cedrix

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/cedrix/LSTM/mlruns/0/b8a8c4ac85444cdc89a10f1bf1a93008/artifacts
+end_time: 1690812663754
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: b8a8c4ac85444cdc89a10f1bf1a93008
+run_name: auspicious-ant-32
+run_uuid: b8a8c4ac85444cdc89a10f1bf1a93008
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1690812663315
+status: 3
+tags: []
+user_id: cedrix

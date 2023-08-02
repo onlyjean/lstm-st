@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/cedrix/LSTM/mlruns/0/a036d20b92f346af9ccd135b4912c217/artifacts
+end_time: 1690812673663
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: a036d20b92f346af9ccd135b4912c217
+run_name: wise-turtle-241
+run_uuid: a036d20b92f346af9ccd135b4912c217
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1690812667597
+status: 3
+tags: []
+user_id: cedrix

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/cedrix/LSTM/mlruns/0/7a3c12e9a25a44ea89d412d1caa4e517/artifacts
+end_time: 1690810591058
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 7a3c12e9a25a44ea89d412d1caa4e517
+run_name: gregarious-goat-995
+run_uuid: 7a3c12e9a25a44ea89d412d1caa4e517
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1690810575290
+status: 3
+tags: []
+user_id: cedrix

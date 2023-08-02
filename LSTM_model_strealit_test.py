@@ -15,8 +15,9 @@ from tensorflow.keras.optimizers import Adam, SGD, RMSprop
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 from math import sqrt
+from datetime import datetime
+from utils import comms  # Make sure you have this utils module with db.py file
 import boto3
-import json
 import os
 from dotenv import load_dotenv
 
@@ -214,9 +215,41 @@ def main():
             st.markdown('**Optimizer**: This is the algorithmic approach employed to adjust the parameters of the LSTM model with the objective of minimizing the loss function. Optimizers such as Adam or Stochastic Gradient Descent are commonly used in this context.')
             st.markdown('**Loss Function**: This is a measure of how well the model\'s predictions conform to the actual values. It is a function that takes the actual and predicted values as input and outputs a numeric value representing the prediction error. The objective of training is to minimize this loss value.')
 
-        
-   
 
+
+
+     # Connect to the S3 bucket
+    s3 = comms.connect()
+    comment_bucket = 'comment-section-st'
+    file_name = 'lstm-st/comments.csv'
+    comments = comms.collect(s3, comment_bucket, file_name)
+
+    with st.expander("💬 Open comments"):
+        # Show comments
+        st.write("**Comments:**")
+
+        for index, entry in enumerate(comments.itertuples()):
+            st.markdown(f"**{entry.name}** ({entry.date}):\n\n&nbsp;\n\n&emsp;{entry.comment}\n\n---")
+
+
+            is_last = index == len(comments) - 1
+            is_new = "just_posted" in st.session_state and is_last
+            if is_new:
+                st.success("☝️ Your comment was successfully posted.")
+
+        # Insert comment
+        st.write("**Add your own comment:**")
+        form = st.form("comment")
+        name = form.text_input("Name")
+        comment = form.text_area("Comment")
+        submit = form.form_submit_button("Add comment")
+
+        if submit:
+            date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            comment.insert(s3, comment_bucket, file_name, [name, comment, date])
+            if "just_posted" not in st.session_state:
+                st.session_state["just_posted"] = True
+            st.experimental_rerun()
 
 
 if __name__ == "__main__":

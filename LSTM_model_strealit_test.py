@@ -18,27 +18,33 @@ from math import sqrt
 import boto3
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
 
 # Set environment variables
-with open('/Users/cedrix/Documents/aws.json', 'r') as f:
-    credentials = json.load(f)
-os.environ['AWS_ACCESS_KEY_ID'] = credentials['AWS_ACCESS_KEY_ID']
-os.environ['AWS_SECRET_ACCESS_KEY'] = credentials['AWS_SECRET_ACCESS_KEY']
+access_key = os.getenv('AWS_ACCESS_KEY_ID')
+secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+# AWS S3 stock bucket
+stock_bucket = 'raw-stock-price'
+# AWS S3 comment-section bucket
+comment_bucket = 'comment-section-st'
 
-# AWS S3 bucket
-bucket = 'raw-stock-price'
 
 def load_data_from_s3(stock_name):
+    st.header("Data")
     file_name = f'yhoofinance-daily-historical-data/{stock_name}_daily_data.csv'
-    s3 = boto3.client('s3', aws_access_key_id=credentials['AWS_ACCESS_KEY_ID'], aws_secret_access_key=credentials['AWS_SECRET_ACCESS_KEY'])
-    obj = s3.get_object(Bucket=bucket, Key=file_name)
+    s3 = boto3.client('s3', aws_access_key_id=access_key, aws_secret_access_key=secret_key)   
+    obj = s3.get_object(Bucket=stock_bucket, Key=file_name)
     df = pd.read_csv(obj['Body'])
     df['date'] = pd.to_datetime(df['date'])  # Convert the 'date' column to datetime
     df.set_index('date', inplace=True)  # Set the 'date' column as the index
     df.sort_index(inplace=True)  # Sort the dataframe by date
+    st.write(df)
+
     return df
 
-@st.cache(suppress_st_warning=True, allow_output_mutation=True)
+#@st.cache(suppress_st_warning=True, allow_output_mutation=True)
 def train_lstm_model(data, look_back, lstm_units, batch_size, epochs, learning_rate, optimizer, loss):
     scaler = MinMaxScaler()
     scaled_data = scaler.fit_transform(data['adj_close'].values.reshape(-1,1))
@@ -83,7 +89,6 @@ def plot_predictions(data, train_len, predictions, future_predictions, future_da
     valid = data[train_len:]
     valid['Predictions'] = predictions
     future_dates = pd.date_range(start=valid.index[-1] + pd.DateOffset(days=1), periods=future_days)
-    # future_dates = pd.date_range(start=valid.index[-1], periods=future_days+1)[1:]  # create future dates
     future = pd.DataFrame(future_predictions, index=future_dates, columns=['Future Predictions'])
     plt.figure(figsize=(16, 8))
     plt.title('Model')
@@ -99,33 +104,53 @@ def plot_predictions(data, train_len, predictions, future_predictions, future_da
 def calculate_metrics(valid, predictions):
     # Calculate the mean squared error
     mse = mean_squared_error(valid['adj_close'], predictions)
-    st.write(f'MSE: {mse}')
 
     # Calculate the root mean squared error
     rmse = sqrt(mse)
-    st.write(f'RMSE: {rmse}')
 
     # Calculate the mean absolute percentage error
     mape = np.mean(np.abs((valid['adj_close'] - valid['Predictions']) / valid['adj_close'])) * 100
-    st.write(f'MAPE: {mape}%')
 
     return mse, rmse, mape
 
 def main():
 
-    
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+      
+    # Display the image using Streamlit with HTML to center it
+    col1, col2, col3 = st.sidebar.columns([1,2,1])
+    with col1:
+        st.image("assets/futurstox-high-resolution-logo-white-on-transparent-background.png", width=350)
+
     
     st.title("Stock Price Prediction with LSTM")
+
     st.sidebar.title("Model Hyperparameters")
-    stock_name = st.sidebar.selectbox("Select a stock", ("AAPL", "GOOGL", "MSFT", "AMZN","TSLA","META", "NFLX", "NVDA"))
-    look_back = st.sidebar.slider("Look-back period", min_value=1, max_value=100, value=50, step=1)
-    lstm_units = st.sidebar.slider("Number of LSTM units", min_value=1, max_value=100, value=50, step=1)
-    batch_size = st.sidebar.slider("Batch size", min_value=1, max_value=100, value=1, step=1)
-    epochs = st.sidebar.slider("Number of epochs", min_value=1, max_value=100, value=1, step=1)
-    learning_rate = st.sidebar.slider("Learning rate", min_value=0.001, max_value=0.1, value=0.01, step=0.001)
-    optimizer = st.sidebar.selectbox("Optimizer", ("Adam", "SGD", "RMSprop"))
-    loss = st.sidebar.selectbox("Loss function", ("mean_squared_error", "mean_absolute_error", "logcosh"))
-    future_days = st.sidebar.slider("Future days to predict", min_value=1, max_value=30, value=1, step=1)
+    stock_name = st.sidebar.selectbox("Select a stock", ("AAPL", "GOOGL", "MSFT", "AMZN","TSLA","META", "NFLX", "NVDA"), help="Select a stock.")
+    learning_rate = st.sidebar.slider("Learning rate", min_value=0.001, max_value=0.1, value=0.01, step=0.001, help="Select the learning rate for the model.")
+    future_days = st.sidebar.slider("Future days to predict", min_value=1, max_value=30, value=1, step=1, help="Select the number of days to forecast.")
+
+
+    explanations = st.checkbox('Show Explanations')
+    advanced_settings = st.sidebar.checkbox('Advanced Settings')
+    if advanced_settings:
+        look_back = st.sidebar.slider("Look-back period", min_value=1, max_value=100, value=32, step=1, help="Select the lookback period.")
+        lstm_units = st.sidebar.slider("Number of LSTM units", min_value=1, max_value=100, value=32, step=1, help="Select the number of LSTM Units period.")
+        batch_size = st.sidebar.slider("Batch size", min_value=1, max_value=100, value=1, step=1, help="Select the batch size.")
+        epochs = st.sidebar.slider("Number of epochs", min_value=1, max_value=100, value=1, step=1, help="Select the number of epochs.")
+        optimizer = st.sidebar.selectbox("Optimizer", ("Adam", "SGD", "RMSprop"), help="Select the optimizer.")
+        loss = st.sidebar.selectbox("Loss function", ("mean_squared_error", "mean_absolute_error", "logcosh"), help="Select the loss function.")
+
+    else:
+        look_back = 32
+        lstm_units = 32
+        batch_size = 32
+        epochs = 10
+        optimizer = "Adam"
+        loss = "mean_squared_error"
+
+            
+       
 
     if st.sidebar.button('Train Model'):
         data = load_data_from_s3(stock_name)
@@ -151,9 +176,7 @@ def main():
         # Unscale the predictions
         future_predictions = scaler.inverse_transform(np.array(future_predictions).reshape(-1,1))
 
-        plot_predictions(data, len(train_data), predictions, future_predictions, future_days)
-        
-        # Calculate metrics
+             # Calculate metrics
         valid = data[len(train_data):len(train_data)+len(predictions)]
         valid['Predictions'] = predictions
         mse, rmse, mape = calculate_metrics(valid, predictions)
@@ -172,6 +195,29 @@ def main():
         with col3:
             st.header("MAPE")
             st.write(mape)
+
+        plot_predictions(data, len(train_data), predictions, future_predictions, future_days)
+
+          # Display explanations on the main page
+    if explanations:
+        st.markdown('## Explanations')
+        st.markdown('**Evaluation Metrics**: Measures used to assess how well the model\'s predictions match the actual values.')
+        st.markdown('- **RMSE (Root Mean Squared Error)**: A measure of the differences between the values predicted by the model and the actual values. Smaller values are better, with 0 being a perfect match.')
+        st.markdown('- **MSE (Mean Squared Error)**: Similar to RMSE, but without taking the square root. This means larger errors are more heavily penalized.')
+        st.markdown('- **MAPE (Mean Absolute Percentage Error)**: The average of the absolute percentage differences between the predicted and actual values. It gives an idea of the error rate in terms of the actual values.')
+        st.markdown('- **Learning Rate**:  This is a tuning parameter that determines the step size at each iteration while moving towards a minimum of a loss function. Too big of a learning rate may result going over the global optima. Too small of a learning rate may take a very long time to get to the global optima.')
+        if advanced_settings:
+            st.markdown('**Look-back Period**: This is the number of previous time steps to use as input variables to predict the next time period. Essentially, it is the window that the model uses to learn and make future predictions.')
+            st.markdown('**Number of LSTM Units**: These are the computational units of the LSTM. They are responsible for learning and retaining important dependencies in the data and forgetting the less relevant details. The number of LSTM units is an important parameter and can significantly influence the model\'s ability to extract patterns from data.')
+            st.markdown('**Batch Size**: This is the total number of training examples present in a single batch. The model weights are updated after training with each batch. The batch size can significantly impact the model\'s performance and speed of convergence.')
+            st.markdown('**Number of Epochs**: An epoch refers to one complete traversal through the entire training dataset. It is a crucial parameter in the context of machine learning and signifies the number of passes of the entire training dataset the machine learning algorithm has completed.')
+            st.markdown('**Optimizer**: This is the algorithmic approach employed to adjust the parameters of the LSTM model with the objective of minimizing the loss function. Optimizers such as Adam or Stochastic Gradient Descent are commonly used in this context.')
+            st.markdown('**Loss Function**: This is a measure of how well the model\'s predictions conform to the actual values. It is a function that takes the actual and predicted values as input and outputs a numeric value representing the prediction error. The objective of training is to minimize this loss value.')
+
+        
+   
+
+
 
 if __name__ == "__main__":
     main()
